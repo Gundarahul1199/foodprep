@@ -6,7 +6,7 @@ const placeOrder = async(req,res)=>{
         return res.status(500).json({ message: 'STRIPE_SECRET_KEY is not defined in environment variables. Please check your .env file.' });
     }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-    const frontend_url= 'http://localhost:5173'
+    const frontend_url= 'https://foodprep-efq2.onrender.com'
     try {
         const newOrder = await orderModel.create(
             {

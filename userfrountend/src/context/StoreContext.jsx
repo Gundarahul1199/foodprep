@@ -8,7 +8,7 @@ const StoreContextProvider = ({children}) => {
     const [cartItems, setCartItems] = useState({});
     const [food_list,setFoodList] = useState([]);
     // Use relative URL for local development; Vite proxy will forward to backend
-    const url = 'http://localhost:4000'
+    const url = 'https://foodprepbackend-fnit.onrender.com'
 
     const [token,setToken] = useState("")
     const fetchFoodList = async()=>{
