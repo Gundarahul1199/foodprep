@@ -7,12 +7,17 @@ export const StoreContext = createContext();
 const StoreContextProvider = ({children}) => {
     const [cartItems, setCartItems] = useState({});
     const [food_list,setFoodList] = useState([]);
-    const url = 'https://foodprepbackend-fnit.onrender.com'
+    // Use relative URL for local development; Vite proxy will forward to backend
+    const url = 'http://localhost:4000'
 
     const [token,setToken] = useState("")
     const fetchFoodList = async()=>{
-        const response = await axios.get(url+'/api/food/list')
-        setFoodList(response.data.data)
+        try {
+            const response = await axios.get('/api/food/list');
+            setFoodList(response.data.data);
+        } catch (error) {
+            console.error('Error fetching food list:', error);
+        }
     }
 
     useEffect(()=>{

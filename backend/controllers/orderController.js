@@ -1,53 +1,56 @@
 const orderModel = require('../models/orderModel')
 const userModel = require('../models/userModel')
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 const placeOrder = async(req,res)=>{
-        const frontend_url= 'https://foodprep-efq2.onrender.com'
-        try {
-            const newOrder = await orderModel.create(
-                {
-                    userId:req.userId,
-                    items:req.body.items,
-                    amount:req.body.amount,
-                    address:req.body.address
-                }
-            )
-            await userModel.findByIdAndUpdate(req.userId,{cartData:{}})
+    if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(500).json({ message: 'STRIPE_SECRET_KEY is not defined in environment variables. Please check your .env file.' });
+    }
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const frontend_url= 'http://localhost:5173'
+    try {
+        const newOrder = await orderModel.create(
+            {
+                userId:req.userId,
+                items:req.body.items,
+                amount:req.body.amount,
+                address:req.body.address
+            }
+        )
+        await userModel.findByIdAndUpdate(req.userId,{cartData:{}})
 
-            const line_items = req.body.items.map((item)=>({
-                price_data:{
-                    currency: 'inr',
-                    product_data:{
-                        name:item.name
-                    },
-                    unit_amount:item.price*100
+        const line_items = req.body.items.map((item)=>({
+            price_data:{
+                currency: 'inr',
+                product_data:{
+                    name:item.name
                 },
-                quantity:item.quantity
-            }))
-            line_items.push({
-                price_data:{
-                    currency: 'inr',
-                    product_data:{
-                        name:'Delivery Charge'
-                    },
-                    unit_amount:20*100
+                unit_amount:item.price*100
+            },
+            quantity:item.quantity
+        }))
+        line_items.push({
+            price_data:{
+                currency: 'inr',
+                product_data:{
+                    name:'Delivery Charge'
                 },
-                quantity:1
-            })
+                unit_amount:20*100
+            },
+            quantity:1
+        })
 
-            const session =  await stripe.checkout.sessions.create({
-                line_items,
-                mode:'payment',
-                success_url:`${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
-                cancel_url:`${frontend_url}/verify?success=false&orderId=${newOrder._id}`
-            })
+        const session =  await stripe.checkout.sessions.create({
+            line_items,
+            mode:'payment',
+            success_url:`${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
+            cancel_url:`${frontend_url}/verify?success=false&orderId=${newOrder._id}`
+        })
 
-            res.json({session_url:session.url})
-        } catch (error) {
-            console.log(error)
-            res.status(500).json({"message":error.message})
-        }
+        res.json({session_url:session.url})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({"message":error.message})
+    }
 }
 
 const verifyOrder = async(req,res)=>{

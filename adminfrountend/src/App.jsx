@@ -7,7 +7,7 @@ import List from './screens/List/List'
 import Orders from './screens/Orders/Orders'
  import { ToastContainer} from 'react-toastify';
 import './App.css'
-const url = 'https://foodprepbackend-fnit.onrender.com'
+const url = 'http://localhost:4000'
 
 const App = () => {
   return (

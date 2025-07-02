@@ -1,13 +1,14 @@
-const express =require('express')
-const app=express()
-const connectDB=require('./config/dbConn')
+require('dotenv').config({ path: __dirname + '/.env' });
+console.log('DB_URI:', process.env.DB_URI);
+const express = require('express');
+const connectDB = require('./config/dbConn');
+const app = express();
 
 const port=process.env.PORT || 4000;
 //middlewares
 app.use(express.json())
 const cors=require(`cors`)
 app.use(cors())
-require('dotenv').config()
 app.use("/image",express.static('uploads'))
 
 connectDB()
